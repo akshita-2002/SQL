@@ -8,9 +8,21 @@
 
 - Database -> organized collection of structured data, usually controlled by DBMS.
 
-- It is a special software, it stores data in hard disk but when data is frequently accessed it is stored in RAM.
+### Features of Database
+1. It is a special software, it stores data in hard disk but when data is frequently accessed it is stored in RAM.
 
-- why can't we put a database in our laptop -> because many user requests can't be handled
+2. Querying becomes easier
+
+3. CRUD is easy
+
+4. Backups are inbuilt
+
+5. Undo - easily (time limit)
+
+6. Performance
+
+
+-  why can't we put a database in our laptop -> because many user requests can't be handled
 
 - Database is stored in cloud
 
@@ -42,15 +54,17 @@
       - Open source 
       - Secure
       - Small footprint (take less space for installation, which means it costs less)
-      - Automation 
+      - Automation (Managing everything from terminal)
 
-- Linux has many flavours , they are called as destros
+- Linux has many flavours , they are called as distros
+
+- Alpine distro of linux is used in cloud
 
 ![alt text](<Screenshot (28).png>)
 
 ## Scaling
  - Increasing number of customers
- - Vertical Scaling => to increase RAM or processors (make it more powerful)
+ - Vertical Scaling => to increase RAM or upgrading the processors (make it more powerful)
  - Horizontal Scaling => add more PC
 
  ![alt text](<Screenshot (29).png>)
@@ -58,11 +72,121 @@
 
  ![alt text](<Screenshot (30).png>)
 
- - DDOS Attack => increase fake traffic. Send fake traffic using bots.
+ - DDOS Attack => increase fake traffic. Send fake traffic using bots. (Distributed Denial of Service)
  ![alt text](<Screenshot (31).png>)
 
  To prevent the attack, divert the traffic to a dummy website. To identify the traffic , block the IP addresses by identifying using region.
  Identifying the bot using captcha.
 
 
+### SQL Vs NOSQL
 
+- Sql data is stored in  tables.
+   Eg:MySql(Microsoft) , PLSQL (Oracle) , PostgreSQL, Amazon RDS
+
+- NoSql data is stored in documents
+  Eg:MongoDB , DynamoDB , Firebase, Redis (good at faster retrieval of data->chaching), CouchDB, cassandra
+
+- Query is a question 
+
+- SELECT => to filter the columns
+
+- WHERE => to filter the rows 
+
+![alt text](<Screenshot (34)-1.png>)
+![alt text](<Screenshot (36).png>)
+
+- IN operator =>  its like OR operator
+```sql
+Select * From movies
+Where year In(2001,2007,2010)
+```
+
+- to select distinct values
+```sql
+SELECT DISTINCT column, another_column, …
+FROM mytable
+WHERE condition(s);
+```
+
+- ORDER BY -> to sort query results
+```sql
+SELECT column, another_column, …
+FROM mytable
+WHERE condition(s)
+ORDER BY column ASC/DESC;
+```
+
+- LIMIT => whatever the result is it limits the number of rows to return .
+OFFSET => to skip certain values.
+- The LIMIT will reduce the number of rows to return, and the optional OFFSET will specify where to begin counting the number rows from.
+```sql
+SELECT column, another_column, …
+FROM mytable
+WHERE condition(s)
+ORDER BY column ASC/DESC
+LIMIT num_limit OFFSET num_offset;
+```
+
+### JOINS
+
+#### INNER JOIN
+
+- The INNER JOIN is a process that matches rows from the first table and the second table which have the same key (as defined by the ON constraint) to create a result row with the combined columns from both tables. After the tables are joined, the other clauses we learned previously are then applied.
+
+```sql
+SELECT column, another_table_column, …
+FROM mytable
+INNER JOIN another_table 
+    ON mytable.id = another_table.id
+WHERE condition(s)
+ORDER BY column, … ASC/DESC
+LIMIT num_limit OFFSET num_offset;
+```
+
+- When there is duplication of data it becomes difficult for updation and deletion and there will be a storage issue and causes inconsistency-> making separate tables makes it easy (Update anamoly).
+
+- Data after separation into tables is called normalization.
+
+- Primary Key 
+  1. Unique
+  2. Notnull
+  3. One column per table
+
+-  Two or more columns taken together can be considered as primary key -> composite primary key
+
+- Foreign Key -> used to join tables (The primary key of one table will be foriegn key of another)
+
+### NORMALIZATION
+
+- to increase safety of data( avoid anamolies)
+
+### 1NF
+![alt text](<Screenshot (40).png>)
+
+1) Using row order to convey information is not required
+![alt text](<Screenshot (44).png>) ❌
+![alt text](<Screenshot (43).png>)
+
+2) Mixing Data types within the same column voilates 1NF
+![alt text](<Screenshot (42).png>)
+
+### 2NF
+
+- To overcome updation , deletion and insertion anamoly
+![alt text](<Screenshot (45).png>) 
+
+- if the non-key attribute is not completely(entirely) dependent on the composite primary key then separate the column with the column of primary key on which it is dependent.
+
+![alt text](<Screenshot (46).png>)
+
+### 3NF
+
+- There should be no dependency of non-key attribute on any other non-key attribute.
+- In the below expample Player_rating is indirectly dependent on Player_ID and Player_Skill_Level is directly dependent on Player_ID.
+
+![](<Screenshot (48).png>)
+- Player_Skill_Level and Player_Rating are dependent on each other -> voilates 3NF
+![alt text](<Screenshot (47).png>)
+
+- bcnf => shorter version of 3NF => Every attribute in a table should depend on the key, the whole key.
