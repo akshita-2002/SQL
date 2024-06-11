@@ -128,21 +128,11 @@ ORDER BY column ASC/DESC
 LIMIT num_limit OFFSET num_offset;
 ```
 
-### JOINS
 
-#### INNER JOIN
 
-- The INNER JOIN is a process that matches rows from the first table and the second table which have the same key (as defined by the ON constraint) to create a result row with the combined columns from both tables. After the tables are joined, the other clauses we learned previously are then applied.
+### NORMALIZATION
 
-```sql
-SELECT column, another_table_column, …
-FROM mytable
-INNER JOIN another_table 
-    ON mytable.id = another_table.id
-WHERE condition(s)
-ORDER BY column, … ASC/DESC
-LIMIT num_limit OFFSET num_offset;
-```
+- to increase safety of data( avoid anamolies)
 
 - When there is duplication of data it becomes difficult for updation and deletion and there will be a storage issue and causes inconsistency-> making separate tables makes it easy (Update anamoly).
 
@@ -156,10 +146,6 @@ LIMIT num_limit OFFSET num_offset;
 -  Two or more columns taken together can be considered as primary key -> composite primary key
 
 - Foreign Key -> used to join tables (The primary key of one table will be foriegn key of another)
-
-### NORMALIZATION
-
-- to increase safety of data( avoid anamolies)
 
 ### 1NF
 ![alt text](<Screenshot (40).png>)
@@ -190,3 +176,63 @@ LIMIT num_limit OFFSET num_offset;
 ![alt text](<Screenshot (47).png>)
 
 - bcnf => shorter version of 3NF => Every attribute in a table should depend on the key, the whole key.
+
+
+## JOINS
+
+- We have two joins inner and outer
+
+- outer join has left , right and full join
+
+#### INNER JOIN
+
+- Inner join => gives only common items of two tables
+
+```sql
+SELECT column, another_table_column, …
+FROM mytable
+INNER JOIN another_table 
+    ON mytable.id = another_table.id
+WHERE condition(s)
+ORDER BY column, … ASC/DESC
+LIMIT num_limit OFFSET num_offset;
+```
+![alt text](<Screenshot (50).png>)
+
+![alt text](<Screenshot (49).png>)
+
+#### Left Join
+![alt text](<Screenshot (52).png>)
+- We can convert left join to right join by exchanging the table names.
+
+#### Right Join
+![alt text](<Screenshot (51).png>)
+
+#### FULL JOIN
+
+![alt text](<Screenshot (53).png>)
+
+## NULL AND NOT NULL
+
+- you can test a column for NULL values in a WHERE clause by using either the IS NULL or IS NOT NULL constraint.
+```sql
+Select query with constraints on NULL values
+SELECT column, another_column, …
+FROM mytable
+WHERE column IS/IS NOT NULL
+AND/OR another_condition
+AND/OR …;
+```
+
+
+### MATHEMATICAL OPERATIONS AND ALIAS
+```sql
+SELECT particle_speed / 2.0 AS half_particle_speed
+FROM physics_data
+WHERE ABS(particle_position) * 10.0 > 500;
+```
+- If we have large column names we can use alias 
+```sql
+SELECT col_expression AS expr_description, …
+FROM mytable;
+```

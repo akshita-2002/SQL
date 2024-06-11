@@ -172,3 +172,61 @@ FROM movies
 INNER JOIN Boxoffice ON Movies.Id==Boxoffice.Movie_id
 ORDER BY Boxoffice.Rating DESC; 
 ```
+
+### Exercise 7 — Tasks
+1. Find the list of all buildings that have employees 
+```sql
+SELECT DISTINCT building FROM employees;
+```
+2. Find the list of all buildings and their capacity
+```sql
+SELECT * FROM buildings;
+```
+3. List all buildings and the distinct employee roles in each building (including empty buildings) 
+```sql
+SELECT DISTINCT building_name, role 
+FROM buildings 
+LEFT JOIN employees ON building_name = building;
+```
+![alt text](<Screenshot (54).png>)
+
+### Exercise 8 — Tasks
+
+1. Find the name and role of all employees who have not been assigned to a building 
+```sql
+SELECT * 
+FROM employees 
+WHERE Building IS NULL;
+```
+2. Find the names of the buildings that hold no employees 
+```sql
+SELECT * FROM Buildings 
+Left join Employees on Building_name==Building 
+WHERE Name IS NULL;
+```
+
+![alt text](<Screenshot (55).png>)
+
+### Exercise 9 — Tasks
+1. List all movies and their combined sales in millions of dollars
+```sql
+SELECT title,(Domestic_sales+International_sales)/1000000
+FROM Boxoffice 
+inner join movies on id==movie_id;
+```
+
+2. List all movies and their ratings in percent 
+```sql
+SELECT title,Rating*10 
+FROM Boxoffice 
+inner join movies on id==movie_id;
+```
+
+3. List all movies that were released on even number years 
+```sql
+SELECT * 
+FROM Movies 
+Where Year%2==0;
+```
+
+![alt text](<Screenshot (56).png>)
