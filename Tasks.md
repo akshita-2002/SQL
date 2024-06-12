@@ -230,3 +230,24 @@ Where Year%2==0;
 ```
 
 ![alt text](<Screenshot (56).png>)
+
+## Exercise 10 — Tasks
+1. Find the longest time that an employee has been at the studio
+```sql
+SELECT * 
+FROM employees 
+Order by Years_employed DESC limit 1;
+```
+2. For each role, find the average number of years employed by employees in that role
+```sql
+SELECT role,Avg(Years_employed) 
+From Employees 
+Group BY Role
+```
+3. Find the total number of employee years worked in each building 
+```sql
+Select Building,sum(Years_employed) 
+From Employees 
+Group By Building
+```
+![alt text](<Screenshot (57).png>)

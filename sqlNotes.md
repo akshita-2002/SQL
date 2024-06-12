@@ -175,10 +175,11 @@ LIMIT num_limit OFFSET num_offset;
 - Player_Skill_Level and Player_Rating are dependent on each other -> voilates 3NF
 ![alt text](<Screenshot (47).png>)
 
-- bcnf => shorter version of 3NF => Every attribute in a table should depend on the key, the whole key.
+- bcnf => shorter version of 3NF => Every attribute in a table should depend on the key, the whole key. Primary key should also depend on primary key.
 
 
 ## JOINS
+-  For safety we normalized the data, to get data from tables we use joins.
 
 - We have two joins inner and outer
 
@@ -197,6 +198,7 @@ WHERE condition(s)
 ORDER BY column, … ASC/DESC
 LIMIT num_limit OFFSET num_offset;
 ```
+- A join B on Pk = Fk;
 ![alt text](<Screenshot (50).png>)
 
 ![alt text](<Screenshot (49).png>)
@@ -226,6 +228,7 @@ AND/OR …;
 
 
 ### MATHEMATICAL OPERATIONS AND ALIAS
+- we can do mathematical operations
 ```sql
 SELECT particle_speed / 2.0 AS half_particle_speed
 FROM physics_data
@@ -236,3 +239,25 @@ WHERE ABS(particle_position) * 10.0 > 500;
 SELECT col_expression AS expr_description, …
 FROM mytable;
 ```
+
+### AGGREGATE FUNCTIONS
+- Aggregation is summarization
+
+```sql
+SELECT AGG_FUNC(column_or_expression) AS aggregate_description, …
+FROM mytable
+WHERE constraint_expression;
+```
+
+![alt text](<Screenshot (58).png>)
+
+- apply the aggregate functions to individual groups of data within that group.
+This would then create as many results as there are unique groups defined as by the GROUP BY clause.
+
+```sql
+SELECT AGG_FUNC(column_or_expression) AS aggregate_description, …
+FROM mytable
+WHERE constraint_expression
+GROUP BY column;
+```
+- The GROUP BY clause works by grouping rows that have the same value in the column specifie
