@@ -4,6 +4,8 @@
 
 - SQL can create , update, delete and retrieve data from databases like mySql , Oracle, PostgreSQL...
 
+- Microsoft documention can be used to learn SQL.
+
 ## Database
 
 - Database -> organized collection of structured data, usually controlled by DBMS.
@@ -368,13 +370,38 @@ CREATE TABLE IF NOT EXISTS mytable (
   5. Blob -> to store binary data
      - to store Images , Videos 
 
+- but using blob is not recommended , so image path is stored in database
+
+##### Sql Server Data Types
+
+1. Integer
+   - Int (-2B,2B)
+   - SmallInt (-32k,32k)
+   - BigInt (-9 x 10^8 , 9 x 10^8)
+2. String
+   - varchar 
+   - nvarchar - follows unicode (calculations are easier that is chinese character is stored as two characters in unicode). Supports diff languages
+   ![alt text](<Screenshot (68).png>)
+   - instead of text max is used
+      - varchar(max)
+      - nvarchar(max)
+3. Decimal 
+    - decimal -> exact stores 10,2 -> upto 2 decimals and 10 is the decimal system used.
+    - float -> approx 
+    - perfomance of float and approximation of decimal is good
+4. boolean
+    - bit -> stores either 0 or 1
+5. Date and datetime
+
+
 #### Table Constraints
   1. Primary Key
-  2. autoincrement -> For integer values, this means that the value is automatically filled in and incremented with each row insertion
-  3. unique
-  4. not null
-  5. foreign key
-  6. check(expression) -> This allows you to run a more complex expression to test whether the values inserted are valid. For example, you can check that values are positive, or greater than a specific size, or start with a certain prefix, etc.
+  2. Autoincrement -> For integer values, this means that the value is automatically filled in and incremented with each row insertion
+  3. Unique
+  4. Not null
+  5. Foreign key -> helps in insert and delete in the table in which the column is foreign key.
+  ![alt text](<Screenshot (67).png>)
+  6. check(expression) -> validation (Eg: above 18 years can vote)
 
   ### ALTER TABLE
 
@@ -402,3 +429,75 @@ DROP TABLE IF EXISTS mytable;
 ```
 
 - If you have another table that is dependent on columns in table you are removing (for example, with a FOREIGN KEY dependency) then you will have to either update all dependent tables first to remove the dependent rows or to remove those tables entirely.
+
+## FUNCTIONS
+
+![alt text](<Screenshot (69).png>)
+
+### String Functions
+ 1. len -> length of string
+ 2. left -> gives the characters from left
+ 3. right -> gives characters from right
+ 4. SubString -> gives the number of characters we have given from the starting position we give
+ 5. Upper -> converts to UPPERCASE
+ 6. Lower -> converts to LOWECASE
+ 7. Ltrim -> deletes the characters or spaces from left
+ 8. RTrim -> deletes the characters or spaces from right
+ 9. CharIndex -> gives the index of character we are searching for in the string
+ 10. Replace -> replaces the character 
+ 11. Concat -> combines two strings
+ 12. Replicate -> repeats 
+ 13. Reverse -> reverses the string
+
+```sql
+Select Len('Akshita') as NameLength;
+Select left('Akshita',4);
+Select right('Akshita',4);
+Select SubString('Akshita',2,3);
+Select UPPER('Akshita');
+Select LOWER('Akshita');
+Select LTRIM('  Akshita Mandala');
+Select LTRIM('Akshita','ak');
+Select RTRIM('Akshita Mandala              ');
+Select RTRIM('Akshita',' ta');
+Select CHARINDEX('t','Akshita',1);
+Select REPLACE('Akshita','t','v');
+select CONCAT('Akshita','Mandala');
+Select REPLICATE('FunFriday',5) as Namelength;
+Select REVERSE('Fun');
+```
+![alt text](<Screenshot (71).png>)
+
+### MATHEMATICAL FUNCTIONS
+1. Abs
+2. Power
+3. Round
+4. Ceiling
+5. Floor
+
+```sql
+Select ABS(-34);
+Select POWER(2,5);
+Select ROUND(58.345,2);
+Select CEILING(58.345);
+Select FLOOR(58.345);
+```
+![alt text](<Screenshot (72).png>)
+
+
+### DATE FUNCTIONS
+
+1. GetDate -> gives today date
+2. DateAdd -> to add day,month or year to a date
+3. DateDiff -> gives the difference between two dates
+4. Format
+5. DatePart -> retrieves the part from date
+```sql
+Select GETDATE();
+Select DATEADD(DAY,10,GETDATE());
+Select DATEPART(YEAR,GETDATE());
+Select DATEDIFF(day,'2024-01-01',GETDATE());
+Select FORMAT(GETDATE(),'dd/mm/yyyy');
+Select FORMAT(GETDATE(),'dd/MMM/yyyy');
+```
+![alt text](<Screenshot (73)-1.png>)
