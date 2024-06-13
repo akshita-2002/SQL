@@ -251,3 +251,118 @@ From Employees
 Group By Building
 ```
 ![alt text](<Screenshot (57).png>)
+
+## Exercise 11 — Tasks
+1. Find the number of Artists in the studio (without a HAVING clause)
+```sql
+SELECT Count(*) 
+FROM employees 
+Where Role="Artist";
+```
+2. Find the number of Employees of each role in the studio 
+```sql
+Select role,count(name) 
+from Employees 
+group by role;
+```
+3. Find the total number of years employed by all Engineers 
+```sql
+Select sum(Years_employed) 
+from Employees 
+where role="Engineers";
+```
+
+![alt text](<Screenshot (59).png>)
+
+## Exercise 12 — Tasks
+1. Find the number of movies each director has directed
+```sql
+SELECT Director,Count(Title) 
+FROM movies 
+group by Director;
+```
+2. Find the total domestic and international sales that can be attributed to each director 
+```sql
+SELECT Director,sum(Domestic_sales+International_sales) 
+FROM movies 
+inner join Boxoffice on id==Movie_id group by Director;
+```
+![alt text](<Screenshot (60).png>)
+
+## Exercise 13 — Tasks
+1. Add the studio's new production, Toy Story 4 to the list of movies (you can use any director)
+```sql
+Insert INTO Movies(Id,Title,Director,Year,Length_minutes) Values(4,"Toy Story 4","John Lasseter",2023,95);
+```
+2. Toy Story 4 has been released to critical acclaim! It had a rating of 8.7, and made 340 million domestically and 270 million internationally. Add the record to the BoxOffice table. 
+```sql
+Insert INTO Boxoffice Values(4,8.7,340000000,270000000);
+```
+
+![alt text](<Screenshot (61).png>)
+
+### Exercise 14 — Tasks
+1. The director for A Bug's Life is incorrect, it was actually directed by John Lasseter 
+
+```sql
+Select * From Movies Where id=3;
+Update Movies
+Set Director = "John Lasseter"
+Where Title="A Bug's Life";
+```
+2. The year that Toy Story 2 was released is incorrect, it was actually released in 1999 
+```sql
+Select * From Movies Where id=3;
+Update Movies
+Set Year=1999
+Where Title="Toy Story 2";
+```
+3. Both the title and director for Toy Story 8 is incorrect! The title should be "Toy Story 3" and it was directed by Lee Unkrich 
+```sql
+Select * from movies where id=11;
+Update Movies 
+Set Title="Toy Story 3",Director="Lee Unkrich"
+Where Title="Toy Story 8";
+```
+
+![alt text](<Screenshot (62).png>)
+
+## Exercise 15 — Tasks
+1. This database is getting too big, lets remove all movies that were released before 2005.
+
+```sql
+SELECT * FROM Movies Where Year<2005;
+Delete from Movies
+Where Year<2005;
+```
+2. Andrew Stanton has also left the studio, so please remove all movies directed by him. 
+```sql
+Select * from movies where Director="Andrew Stanton";
+Delete from movies
+Where Director="Andrew Stanton";
+```
+
+![](<Screenshot (63).png>)
+
+
+## Exercise 16 — Tasks
+1. Create a new table named Database with the following columns:
+– Name A string (text) describing the name of the database
+– Version A number (floating point) of the latest version of this database
+– Download_count An integer count of the number of times this database was downloaded
+This table has no constraints. 
+```sql
+Create table if not exists Database(Name text, Version Float,Download_count Int);
+```
+## Exercise 17 — Tasks
+1. Add a column named Aspect_ratio with a FLOAT data type to store the aspect-ratio each movie was released in. 
+```sql
+Alter table Movies
+add Aspect_ratio float;
+```
+2. Add another column named Language with a TEXT data type to store the language that the movie was released in. Ensure that the default for this language is English.
+
+```sql
+Alter table Movies
+Add Language Text Default English;
+```

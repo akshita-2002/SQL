@@ -260,4 +260,145 @@ FROM mytable
 WHERE constraint_expression
 GROUP BY column;
 ```
-- The GROUP BY clause works by grouping rows that have the same value in the column specifie
+- The GROUP BY clause works by grouping rows that have the same value in the column specific
+
+- When we want to drill down to next level we use grouping
+
+- If there is every use group by .
+
+### HAVING CLAUSE IN GROUP By
+- HAVING clause which is used specifically with the GROUP BY clause to allow us to filter grouped rows from the result set.
+```sql
+Select query with HAVING constraint
+SELECT group_by_column, AGG_FUNC(column_expression) AS aggregate_result_alias, …
+FROM mytable
+WHERE condition
+GROUP BY column
+HAVING group_condition;
+```
+
+- Both having and where are used for filtering .
+
+## ORDER OF EXECUTION OF QUERIES
+```sql
+SELECT DISTINCT column, AGG_FUNC(column_or_expression), …
+FROM mytable
+    JOIN another_table
+      ON mytable.column = another_table.column
+    WHERE constraint_expression
+    GROUP BY column
+    HAVING constraint_expression
+    ORDER BY column ASC/DESC
+    LIMIT count OFFSET COUNT;
+```
+
+## INSERT STATEMENT
+
+- inserting data into a database, we need to use an INSERT statement, 
+
+- to insert values in all columns of table
+```sql
+INSERT INTO mytable
+VALUES (value_or_expr, another_value_or_expr, …),
+       (value_or_expr_2, another_value_or_expr_2, …),
+       …;
+```
+
+- to insert into only specific columns
+```sql
+INSERT INTO mytable
+(column, another_column, …)
+VALUES (value_or_expr, another_value_or_expr, …),
+      (value_or_expr_2, another_value_or_expr_2, …),
+      …;
+```
+
+
+## UPDATE STATEMENT
+
+-  update existing data, 
+- Similar to the INSERT statement, you have to specify exactly which table, columns, and rows to update. In addition, the data you are updating has to match the data type of the columns in the table schema.
+
+- First write select statement before update statement, so that we can confirm what we are updating first.
+```sql
+UPDATE mytable
+SET column = value_or_expr, 
+    other_column = another_value_or_expr, 
+    …
+WHERE condition;
+```
+eg:
+```sql
+Update Movies
+Set Director = "John Lasseter"
+Where Title="A Bug's Life";
+```
+
+## DELETE A ROW
+```sql
+DELETE FROM mytable
+WHERE condition;
+```
+- If you decide to leave out the WHERE constraint, then all rows are removed
+
+## Data Manipulation Language -> Select,Update,Delete,Insert
+## Data Denifination Language -> Create,Alter,Drop 
+## CREATE TABLE
+- If there already exists a table with the same name, the SQL implementation will usually throw an error, so to suppress the error and skip creating a table if one exists, you can use the IF NOT EXISTS clause.
+```sql
+CREATE TABLE IF NOT EXISTS mytable (
+    column DataType TableConstraint DEFAULT default_value,
+    another_column DataType TableConstraint DEFAULT default_value,
+    …
+);
+```
+#### Data types
+  1. Integer,Boolean
+  2. FLoat, Double, Real 
+     - float stores upto 3 precision points
+     - double stores upto 6 precision points
+     - real stores upto 12 prescision pints
+  3. Character, varchar,text
+     - CHARACTER are meant to store few characters (eg:gender)
+     - VARCHAR are meant to store few sentences
+     - TEXT for paragraphs
+  4. date,datetime 
+     -  Date stores date
+     - Datetime stores date and time
+  5. Blob -> to store binary data
+     - to store Images , Videos 
+
+#### Table Constraints
+  1. Primary Key
+  2. autoincrement -> For integer values, this means that the value is automatically filled in and incremented with each row insertion
+  3. unique
+  4. not null
+  5. foreign key
+  6. check(expression) -> This allows you to run a more complex expression to test whether the values inserted are valid. For example, you can check that values are positive, or greater than a specific size, or start with a certain prefix, etc.
+
+  ### ALTER TABLE
+
+-  to add new column to a table
+  ```sql
+  ALTER TABLE mytable
+  ADD column DataType OptionalTableConstraint 
+  DEFAULT default_value;
+  ```
+- to remove a column
+```sql
+ALTER TABLE mytable
+DROP column_to_be_deleted;
+```
+- Rename the table name
+```sql
+ALTER TABLE mytable
+RENAME TO new_table_name;
+```
+
+### DROP 
+- it also removes the table schema from the database entirely.
+```sql
+DROP TABLE IF EXISTS mytable;
+```
+
+- If you have another table that is dependent on columns in table you are removing (for example, with a FOREIGN KEY dependency) then you will have to either update all dependent tables first to remove the dependent rows or to remove those tables entirely.
