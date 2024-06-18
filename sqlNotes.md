@@ -394,12 +394,12 @@ CREATE TABLE IF NOT EXISTS mytable (
 5. Date and datetime
 
 
-#### Table Constraints
+#### Table Constraints -> data integrity (correctness of data , to avoid junk data)
   1. Primary Key
   2. Autoincrement -> For integer values, this means that the value is automatically filled in and incremented with each row insertion
   3. Unique
   4. Not null
-  5. Foreign key -> helps in insert and delete in the table in which the column is foreign key.
+  5. Foreign key -> helps in insert and delete in the table in which the column is foreign key.Avoids ghost data.
   ![alt text](<Screenshot (67).png>)
   6. check(expression) -> validation (Eg: above 18 years can vote)
 
@@ -443,7 +443,7 @@ DROP TABLE IF EXISTS mytable;
  6. Lower -> converts to LOWECASE
  7. Ltrim -> deletes the characters or spaces from left
  8. RTrim -> deletes the characters or spaces from right
- 9. CharIndex -> gives the index of character we are searching for in the string
+ 9. CharIndex -> gives the index of character or word we are searching for in the string
  10. Replace -> replaces the character 
  11. Concat -> combines two strings
  12. Replicate -> repeats 
@@ -453,14 +453,14 @@ DROP TABLE IF EXISTS mytable;
 Select Len('Akshita') as NameLength;
 Select left('Akshita',4);
 Select right('Akshita',4);
-Select SubString('Akshita',2,3);
+Select SubString('Akshita',2,3); -- Searching starts from one
 Select UPPER('Akshita');
 Select LOWER('Akshita');
 Select LTRIM('  Akshita Mandala');
 Select LTRIM('Akshita','ak');
 Select RTRIM('Akshita Mandala              ');
 Select RTRIM('Akshita',' ta');
-Select CHARINDEX('t','Akshita',1);
+Select CHARINDEX('t','Akshita',1); 
 Select REPLACE('Akshita','t','v');
 select CONCAT('Akshita','Mandala');
 Select REPLICATE('FunFriday',5) as Namelength;
@@ -499,5 +499,109 @@ Select DATEPART(YEAR,GETDATE());
 Select DATEDIFF(day,'2024-01-01',GETDATE());
 Select FORMAT(GETDATE(),'dd/mm/yyyy');
 Select FORMAT(GETDATE(),'dd/MMM/yyyy');
+Select DATEDIFF(Hour,'2024-01-01',GETDATE());
 ```
 ![alt text](<Screenshot (73)-1.png>)
+
+
+### OPERATORS
+- there are two diiferent tables employees and departments.
+
+#### All
+```sql
+-- Task1 : Find all the employees who earn more than all employees in the 'Sales ' department
+Select * from employees
+WHere Salary > ALL(Select salary 
+                   from employees
+				   where department_id=(select department_id from departments where department_name='sales')
+				   )
+```
+#### Any
+```sql
+
+-- Task2 : Find all the employees who earn more than any employyes in the 'HR' department
+Select * 
+from employees e 
+where salary > 
+Any(Select salary from employees where department_id=
+                                           (select department_id from departments where department_name='HR'));
+```
+#### Exists
+```sql
+
+-- Task3 : Find all the departments that have at least one employee with a salary greater than $50,000.
+-- filters the result if the sub query returns anything
+select * 
+from departments as o
+where  Exists (select department_id from employees as i where salary > 50000 and o.department_id = i.department_id);
+```
+
+## SET OPERATIONS
+
+#### INTERSECTION
+
+#### UNION
+
+#### UNION ALL 
+- duplicates the common parts
+![alt text](<Screenshot (76).png>)
+
+#### EXCEPT 
+- A-B 
+- B-A
+![alt text](<Screenshot (77).png>)
+
+```sql
+Select "Name" from Employees
+Intersect
+Select "Name" from Contractors
+
+Select "Name" from Employees
+Union
+Select "Name" from Contractors
+
+Select "Name" from Employees
+Except
+Select "Name" from Contractors
+
+Select "Name" from Employees
+Union all
+Select "Name" from Contractors
+
+```
+
+#### MULTI JOINS
+
+```sql
+Select [Name],ProjectName from Employees as e 
+Inner Join Participations as par 
+on e.EmployeeID=par.EmployeeID
+Inner Join 
+Projects as proj
+on proj.ProjectID=par.ProjectID
+where Name='Alice'
+```
+
+
+#### MULTI LEVEL GROUPING
+![alt text](<Screenshot (82).png>)
+![alt text](<Screenshot (83).png>)
+
+#### GROUPING SETS
+```sql
+Select region,product_type,Sum(sales_amount)
+From sales_data
+Group By GROUPING Sets ((region),(product_type),(region,product_type));
+```
+
+#### CUBE vs ROLLUP
+##### Cube 
+- gives all possible combinations
+- gives region,product,(region,product_type),() 
+- the empty set returns the sum of all amounts
+- (n+1) combinations
+#### ROLLUP
+- we get only three combinations region,(region,product_type) and ()
+- 2^n combinations
+![alt text](<Screenshot (85).png>)
+
