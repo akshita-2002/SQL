@@ -599,9 +599,260 @@ Group By GROUPING Sets ((region),(product_type),(region,product_type));
 - gives all possible combinations
 - gives region,product,(region,product_type),() 
 - the empty set returns the sum of all amounts
-- (n+1) combinations
+- 2^n combinations
 #### ROLLUP
 - we get only three combinations region,(region,product_type) and ()
-- 2^n combinations
+- (n+1) combinations
 ![alt text](<Screenshot (85).png>)
 
+# RANKING
+Ranking
+- 1. Rank
+- 2. Dense Rank
+- 3. Row_Number
+- 4. 
+
+```sql
+Select * 
+,Rank() OVER (Order By Sales_amount desc) as rankOfSales
+,DENSE_RANK() OVER (Order By Sales_amount desc) as DenseRank
+,ROW_NUMBER() OVER (Order By Sales_amount desc) as rowRank
+from sales_data
+```
+
+![alt text](<Screenshot (87).png>)
+
+#### PARTION BY
+- to get rank of products according to region , we are doing partioning of region
+```sql
+Select Region , Sum(sales_amount)as Total_sales , product_type
+,DENSE_RANK() OVER (Partition By Region Order by Sum(Sales_amount) Desc) As rank_of_regions
+From sales_data
+Group By region,product_type
+```
+![alt text](<Screenshot (89).png>)
+#### COMMON TABLE EXPRESSION
+- to get a temporary table 
+- so that we can perform group by and where on alias names
+![alt text](<Screenshot (88).png>)
+
+
+## ER DIAGRAM
+### CARDINALITY
+
+- ONE-ONE RELATIONSHIP => for every value in table 1 there should be only one value in table two
+- ONE-MANY RELATIONSHIP
+- MANY-MANY RELATIONSHIP
+
+
+- Schema => Using create statement create tables using entity
+- Check is custom validation
+- We have to give a name to the constraint 
+     - so that we get to know when there is an error which part the error is occuring
+     - to update or change the constraint
+
+- to add check constriant
+```sql
+Alter Table Actor
+Add Constraint Ck_Actor Check(
+len(name) >0
+);
+```
+- to add auto increment , we use identity as sql doesnt support auto increment
+```sql
+indentity(1,1);
+```
+- means increment start from 1 and increments by an increment of 1
+
+
+### XML-AUTO AND XML-PATH
+
+- to send data from layer to another a common language is required.
+- Json is the common language for backend,frontend and database
+- XML is the older version of JSON
+- XML Auto gives attributes
+- XML Path gives keys
+
+```sql
+Select *
+from Movies
+for XML AUTO; --> to covert sql to xml
+
+
+Select *
+from Movies
+for XML PATH; --> to convert sql to xml => more specific (valid XML)
+```
+
+```sql
+Select MovieID,Title,DirectorID
+from Movies
+for XML PATH ('Movie');
+```
+- the path gives row by default to change the name to movie use 👆
+
+```sql
+Select *
+from Movies
+for XML PATH ('Movie') , Root('Movies')
+```
+- to put the whole code in one container use root and to give a name movies 👆
+
+- to get some of them as attributes and others as keys
+```sql
+Select 
+MovieID as [@MovieID],
+Title,
+DirectorID
+from Movies
+for XML PATH ('Movie');
+```
+
+- to get nested xml
+- to get title inside movieInfo
+```sql
+Select 
+MovieID as [@MovieID],
+Title as [MovieInfo/Title],
+DirectorID
+from Movies
+for XML PATH ('Movie');
+```
+
+
+#### JSON
+
+- to convert sql to json
+- Json path gives the result in array , in this case we can add root
+```sql
+
+Select * 
+from movies
+for JSON Auto;
+
+Select *
+From Movies
+For JSON PATH;
+
+Select *
+FROm movies
+FOR JSON PATH , Root
+Select *
+FROm movies
+FOR JSON PATH , Root('Movies')
+```
+![alt text](<Screenshot (92).png>) 
+
+
+### TERMS IN SQL
+
+- DATABASE KEYS
+  - Primary key
+  - Foreign key
+  - Candidate key => columns that are eligible to become primary key
+  - ALternate key => The keys that are eligible to become primary key other than primary key
+
+     Alternate Key = Candidate key - primary key
+    
+  - Composite key
+  - Super key => group of single or multiple keys which indentifies rows in a table.
+  - In super key each column is a primary key
+  - in composite key combination of columns is a primary key
+
+     Super Key => Primary Key , Candidate Key , Alternate Key
+
+
+- CROSS JOIN : each row of one table is multiplied by all rows in other table
+![alt text](<Screenshot (95).png>)
+![alt text](<Screenshot (97).png>)
+
+- NATURAL JOIN : No need to mention condition to join, same as inner join. Based on cloumn name
+```sql
+Select * from EMployees
+Natural Join Departments
+```
+
+- EQUI JOIN : same as inner join , condition must be presented.The condition is always equal to(=). Equi Join is not supported in sql server.
+```sql
+Select * from Emp
+EQUI Join Dep
+On column_name
+```
+
+- SELF JOIN : join with itself 
+
+
+### FORMAT FUNCTIONS
+- Convert advantage - can be used for date
+- the parameters(101,103,111) are called as stlying code , to style  date 
+```sql
+Select Convert(int,Avg(sales_amount))as average_sales
+from sales_data
+group by region;
+
+SELECT CAST(25.65 AS int);
+SELECT CONVERT(int,25.67);
+
+Select CONVERT(float,24);
+Select (GETDATE());
+Select CAST(GETDATE() AS nvarchar );
+```
+
+### DECLARING A VARIABLE
+```sql
+Declare @movie_id Int;
+Set @movie_id = 3;
+
+Select * from Movies
+Where MovieId = @movie_id;
+```
+
+
+#### CREATING FUNCTION
+- returns is used for return data type
+- return is used for what to return 
+```sql
+
+Create Function dbo.CalcualteAge(@ReleaseDate Int)
+Returns int
+As 
+Begin
+   Return Year(GetDate()) - @ReleaseDate;
+End;
+
+Select dbo.CalcualteAge(2005);
+
+Select *,dbo.CalcualteAge([Year]) From Movies;	
+```
+
+
+- Limit is not supoorted in sql , use top instead
+
+- OFFSET AND FETCH SHOULD BE USED IN SQL INSTEAD OF LIMIT AND OFFSET
+```sql
+Select  *,dbo.CalcualteAge([Year]) as Diff_year
+From Movies
+Order By Diff_year DESC 
+OFFSET 3 rows
+FETCH NEXT 3 rows ONLY;
+```
+- to skip first 3 rows and get next 3 rows
+
+#### VIEW
+- filter
+- doesnt create another table
+- virtual table
+- when we call view it calls the actual table
+- it copies by reference
+- Complex statement - create view for easy readability 
+- abstraction - to hide the complexity 
+```sql
+--last decade movies
+create view vWLastDecadeMovies   -- vW is for developers to know that it is a view table , if we update movies table the view table will automatically get updated
+as
+Select MovieID,Title,[YEAR] from Movies
+Where [year] Between 2010 AND 2020;
+
+select * from vWLastDecadeMovies;
+```
+- safety - to hide some rows and columns that are confidential
