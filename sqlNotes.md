@@ -779,7 +779,16 @@ EQUI Join Dep
 On column_name
 ```
 
-- SELF JOIN : join with itself 
+- SELF JOIN : join with itself
+```sql
+-- to get actors with more than one role in a  movie
+Select role1.MovieId,role2.ActorId,role1.role
+   From MovieActors role1
+   Inner Join MovieActors role2
+   On role1.MovieID=role2.MovieID
+   And role1.ActorId=role2.ActorId
+   And role1.Role <> role2.Role
+``` 
 
 
 ### FORMAT FUNCTIONS
@@ -856,3 +865,126 @@ Where [year] Between 2010 AND 2020;
 select * from vWLastDecadeMovies;
 ```
 - safety - to hide some rows and columns that are confidential
+
+### CASE
+```sql
+Select *,
+Case When BoxOffice > 10000000000 Then 'BlockBuster'
+     When BoxOffice Between 1000000000 AND 10000000000 Then 'Hit'
+	 When BoxOffice < 1000000000 Then 'Average'
+	 Else 'Flop'
+     End as Category
+From Movies;
+```
+### INLINE , MULTI and SCALAR FUNCTIONS
+
+- Scalar Function 
+```sql
+Create Function dbo.CalculateAgeOfMovie(@MovieID Int)
+Returns int
+As
+Begin
+  Declare @age int
+  Set @age = (Select Year(GetDate())-ReleaseYear 
+              From Movies
+			  Where MovieID=@MovieID)
+ Return(@age);
+End;
+
+Select *, dbo.CalculateAgeOfMovie(MovieID)  as Age
+From Movies;
+```
+- Inline Table-Valued Function
+ ```sql
+Create Function dbo.GetMoviesByBudgetRange (@MinBudget float , @MaxBudget float)
+Returns table
+As
+	Return (Select * From 
+	         Movies
+			 Where Budget BETWEEN @MinBudget AND @MaxBudget);
+ 
+ 
+Select *
+FRom dbo.GetMoviesByBudgetRange(60000000,1800000000)
+```
+
+- Multi-statement table-valued function
+- MTVF -> we can insert ,update and delete the table created inside the MTVF
+```sql
+--Task: Create a multi-statement table-valued function named dbo.GetTopActorsByMovieCount that returns actors who have acted in more than 2 movies.
+Create function dbo.GetTopActorsByMovieCount()
+Returns @tablewithactors Table (ActorId int, FullName nvarchar(50))
+As
+  Begin
+   Insert into @tablewithactors
+   Select ActorId , CONCAT(FirstName,' ',LastName)
+   From Actors
+   Where ActorID In (Select ActorID
+                     From MovieActors
+					 Group By ActorID
+					 Having COUNT(*) >2)
+ Return
+END;
+
+Select *
+FROm dbo.GetTopActorsByMovieCount();
+```
+
+
+#### IF-ELSE , WHILE
+
+- if-else 
+```sql
+Declare @OrderAmount Decimal(10,2) = 1500.00
+
+If @OrderAmount > 1000
+Begin
+    Print 'Applying 10% discount'
+End
+Else
+Begin
+   Print 'No Discount'
+End
+```
+- While
+```sql
+Declare @Counter Int = 10
+
+While @Counter > 0
+Begin 
+  Print @Counter
+  Set @Counter= @Counter - 1
+End
+```
+
+### CREATE PROCEDURE
+
+- Multiple dml statements can be used
+- multiple select , create statements are used 
+
+```sql
+Create Procedure spGetMovie
+   @Genre nvarchar(20)
+As
+Begin
+Select * From Movies
+    Where Genre = @Genre
+End
+
+Exec spGetMovie 'Action'
+Execute spGetMovie 'Action'
+```
+
+```sql
+-- inbuilt store procedure
+--sp_helptext -> returns the content inside the function
+Exec sp_helptext GetActorsWithMultipleRoles
+```
+
+# MONGO DB
+- insertion is slow
+- retrieval is fast
+- Social media apps are read heavy
+- indexing - by default sql gives indexing 
+- table scanner scans the columns with no index for searching
+- 
