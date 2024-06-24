@@ -985,6 +985,9 @@ Exec sp_helptext GetActorsWithMultipleRoles
 - insertion is slow
 - retrieval is fast
 - Social media apps are read heavy
-- indexing - by default sql gives indexing 
+- indexing - by default sql gives indexing , does grouping
+- indexing creates a tree
+![alt text](<Screenshot (98)-1.png>)
+-  problem with indexing - the more indexing insertion is slower
 - table scanner scans the columns with no index for searching
 - 
