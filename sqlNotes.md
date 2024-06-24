@@ -989,5 +989,25 @@ Exec sp_helptext GetActorsWithMultipleRoles
 - indexing creates a tree
 ![alt text](<Screenshot (98)-1.png>)
 -  problem with indexing - the more indexing insertion is slower
+- defualt index in database is clustered index
+- Clustered index is the order of the table(the primary key)
 - table scanner scans the columns with no index for searching
-- 
+- we can't have both insertion and retrieval faster
+- clustered 
+   1. pk 
+   2. Decides table order
+   3. only one per table
+
+- non-clustered
+  1. (non pk)
+  2. does not decide table order
+  3. many per tables
+
+- Non clustered indexing
+ ![alt text](<Screenshot (99).png>)
+ ```sql
+ Create NONCLUSTERED INDEX ix_OnName On Employees (Name); --ix for index convention
+-- first the name(sorted in alphabetical order) is searched then the corresponding id is searched then the clustered index
+```
+
+- Insertion and deletion becomes difficult because after we insertion or deletion  in the table we have to insert or delete in the non clustered table also , and the non clustered table must be updated again
