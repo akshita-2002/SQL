@@ -256,6 +256,8 @@ WHERE constraint_expression;
 - apply the aggregate functions to individual groups of data within that group.
 This would then create as many results as there are unique groups defined as by the GROUP BY clause.
 
+- we have to use columns that we give  in select statement either in group by or in aggregate functions
+
 ```sql
 SELECT AGG_FUNC(column_or_expression) AS aggregate_description, …
 FROM mytable
@@ -490,11 +492,11 @@ Select FLOOR(58.345);
 1. GetDate -> gives today date
 2. DateAdd -> to add day,month or year to a date
 3. DateDiff -> gives the difference between two dates
-4. Format
+4. Format 
 5. DatePart -> retrieves the part from date
 ```sql
 Select GETDATE();
-Select DATEADD(DAY,10,GETDATE());
+Select DATEADD(DAY,10,GETDATE());t
 Select DATEPART(YEAR,GETDATE());
 Select DATEDIFF(day,'2024-01-01',GETDATE());
 Select FORMAT(GETDATE(),'dd/mm/yyyy');
@@ -594,8 +596,8 @@ From sales_data
 Group By GROUPING Sets ((region),(product_type),(region,product_type));
 ```
 
-#### CUBE vs ROLLUP
-##### Cube 
+### CUBE vs ROLLUP
+#### CUBE
 - gives all possible combinations
 - gives region,product,(region,product_type),() 
 - the empty set returns the sum of all amounts
@@ -981,9 +983,9 @@ Execute spGetMovie 'Action'
 Exec sp_helptext GetActorsWithMultipleRoles
 ```
 
-# MONGO DB
-- insertion is slow
-- retrieval is fast
+# INDEXING
+- in mongoDb insertion is slow
+- in mongoDB retrieval is fast
 - Social media apps are read heavy
 - indexing - by default sql gives indexing , does grouping
 - indexing creates a tree
@@ -1007,7 +1009,300 @@ Exec sp_helptext GetActorsWithMultipleRoles
  ![alt text](<Screenshot (99).png>)
  ```sql
  Create NONCLUSTERED INDEX ix_OnName On Employees (Name); --ix for index convention
--- first the name(sorted in alphabetical order) is searched then the corresponding id is searched then the clustered index
+-- first the name(sorted in alphabetical order) is searched then the corresponding id is searched then clustered search(the clustered index) is performend to get other details of the name 
+```
+```sql
+Exec sp_helpindex Employees -- to get all indexes
+drop Index ix_OnName  ON Employee -- to drop the index
+```
+- Insertion and deletion becomes difficult because after we insertion or deletion  in the table we have to insert or delete in the non clustered table also , and the non clustered table must be updated again
+
+```sql
+-- we are applying clustered indexing on gender and salary , the order of the table will be according to gender and salary 
+Exec sp_helpindex Employees;
+
+Create Clustered Index IX_tblEmployee_Gender_Salary
+ON tblEmployee(Gender DESC, Salary ASC)	
+
+Select * from tblEmployee
+```
+- Unique and Non unique Index => Unique indexing is on unique columns and non unique indexing is on non unique columns
+
+- we can see indexing sub tree cost and time in execution plan
+
+- to delete a clustered index first delete the constraint of primary key then delete the indexing
+
+### Filtered Indexing
+- Filtering the rows on title column which released in the year 2020
+- to assign indexing to frequently accessed data
+
+```sql
+Create Index IX_Filtered_Year
+On Movies(Title)
+Where ReleaseYear=2020
+```
+- DIsable the indexing
+```sql
+Alter Index IX_Filtered_Year on Movies Disable
 ```
 
-- Insertion and deletion becomes difficult because after we insertion or deletion  in the table we have to insert or delete in the non clustered table also , and the non clustered table must be updated again
+- Enable the indexing
+```sql
+Alter Index IX_Filtered_Year on Movies Rebuild
+```
+
+- to rename 
+```sql
+Exec sp_rename 'Movies.IX_Filtered_Year' , 'Movies.IX_Filter_Year'
+```
+
+## ACID PRINCIPLES
+![alt text](<Screenshot (100).png>)
+1. Atomicity : If one transaction is performed properly the other transaction should also happen . If one fails the other should also fails
+ Eg: if update pass then insert should also pass , if update fails then insert should also fail.
+    Talks about failure during transaction
+
+2. Consistency : Cannot have ghost data. If data is reduced then somewhere it must must be accounted for . if the quantity is reduced by 2 then it must be present somewhere , maybe in the order table or Refurmisment table
+
+3. Isolation : Lock only the rows that are effected . One transaction must not effect the other. Suppose we are booking a movie ticket , the seat must be locked until the payment is confirmed , mean time the other seats must be open for booking.
+![alt text](<Screenshot (101).png>)
+
+4. Durability: We are accounting for power failures . If power failure happens then the transaction must roll back.Talks about failure after transaction
+
+- If we start a transaction and doesn't commit it then the transaction will be in loop
+
+```sql
+Begin TRANSACTION
+Update Actors
+Set FirstName = 'Prabhas fun'
+Where ActorID = 11
+```
+- in new connection , it won't execute as the transaction is not commited
+```sql
+Select * from Actors
+Where actor_id = 11 ; ❌
+Select * from Actors ; ❌ -- contains uncommited data (Isolation)
+```
+![alt text](<Screenshot (102).png>) 
+
+-  by default the isolation settings will be in committed
+- to get uncommitted changes 
+```sql
+Set transaction isolation level read uncommitted;
+```
+
+- until the transaction is not committed we can rollback the changes using 
+```sql
+ROLLBACK
+```
+- it will change back the change from prabhas 200 to before
+```sql
+
+Begin TRANSACTION
+Update Actors
+Set FirstName = 'Prabhas 200'
+Where ActorID = 11
+
+Select * from actors;
+
+Rollback
+```
+
+
+
+- Try and catch
+```sql
+Create Procedure spActorChangeOfTitle
+  @name nvarchar(20) , @id int
+As
+Begin
+Begin Try
+Begin Transaction
+Update Actors  Set FirstName = @name 
+Where ActorID=@id;
+commit transaction 
+End try
+Begin catch
+  rollback
+end catch
+end
+```
+
+
+## COALESCE
+- returns the first value which is not null
+```sql
+Select coalesce(NULL,NULL,'First Non-Null Value') As FirstNonNullValue;
+```
+
+## SYSTEM INFO FUNCTIONS
+```sql
+Select DB_Name() As CurrentDatabase; --Returns the current Database
+
+Select @@VERSION As SQLSERVERVERSION; --Returns the version of the sql server 
+
+Select @@SERVICENAME As ServiceName; 
+
+Select SESSION_USER ; -- The schema we are using
+
+Select SYSTEM_USER ; -- the name of the user
+```
+
+### USER DEFINED DATA TYPES
+```sql
+--user defined data types
+--phone number
+
+Create type PhoneNumber From Varchar(15) Not Null
+
+Create Table CUstomer(
+ContactID int Primary Key,
+Name varchar(50),
+Phone PhoneNumber
+);
+
+Insert into CUstomer
+Values (1,'Akshita','123-989-1234');
+```
+
+#### XML DATA TYPE
+```sql
+Create table library(
+   LibraryId int Primary KEy,
+   Books XML
+);
+```
+![alt text](<Screenshot (103).png>)
+- to convert the xml data into tabular form
+- parsing helps to know errors
+```sql
+-- parse the xml document
+--storing the input xmldata to output doc xmldoc
+EXEC sp_xml_preparedocument @xmlDoc OUTPUT, @xmlData;
+
+-- Query the XML data using OPENXML
+Select *
+From OPENXML(@xmlDoc,'/Books/Book',1) -- to get the details the details of book
+WITH {
+   id int '@id',
+   title nvarchar(MAx) 'title'
+   Author nvarchar(Max) 'Author'
+}
+```
+
+- to clear the xml doc from memory as it is stored as variable
+```sql
+-- to clear the memory
+EXEC sp_xml_removedocument @xmlDoc;
+```
+
+# TRIGGERS
+- to log the actions
+- one action should trigger another reaction 
+- Eg: If we update in one table then automatically there should be a insert in another table
+![alt text](<Screenshot (105).png>)
+![alt text](<Screenshot (104).png>)
+
+```sql
+--Insert in products --> Insert in 
+Create Trigger trg_productInsert
+On Products --SQl listen
+After Insert --before/after (insert/delete,update)
+As
+BEGIN
+   Insert into AuditLog
+   Select 'Products','Insert',ProductId,GetDate()
+   From inserted  --All rows which got inserted recently (logical table - Only available in trigger)
+end
+```
+
+- unbounded preceding - staring of the partiton
+- unbounded following - ending of partition
+
+```sql
+--- to get the sum of all the rows before that row
+Sum(sales_amount) Over (ORder by sales_amount Rows Between unbounded preceding and current row) as running_total
+
+Sum(sales_amount) Over (partition by region Order by sales_amount Rows Between 1 preceding and 1 following) as running_total
+
+```
+- unbounded preciding and unbounded following
+```sql
+
+```
+
+```sql
+-- to get sum of the before row , that row and after row
+Sum(sales_amount) Over (Order by sales_amount Rows Between 1 preceding and 1 following) as running_total
+
+Avg(sales_amount) Over (Order by sales_amount Rows Between 1 preceding and 1 following) as running_total
+
+Count(sales_amount) Over (Order by sales_amount Rows Between 1 preceding and 1 following) as running_total
+```
+
+#### NTILE
+
+- to divide into groups
+```sql
+Select 
+   region,
+   product_type
+   sales_amount,
+   NTILE(3) Over (Order by sales_amount desc) as Group_Number
+```
+
+#### OPENJSON
+```sql
+DECLARE @jsonData NVARCHAR(MAX)
+SET @jsonData = N'{
+    "Books": [
+        {"Title": "SQL Essentials", "Author": "John Doe"},
+        {"Title": "Learning XML", "Author": "Jane Smith"}
+    ],
+    "sales": 4000
+}'
+ 
+SELECT Title, Author
+FROM OPENJSON(@jsonData, '$.Books')
+WITH (
+    Title NVARCHAR(100),
+    Author NVARCHAR(100)
+)
+```
+```sql
+DECLARE @jsonData NVARCHAR(MAX)
+SET @jsonData = N'{
+    "Books": [
+        {"id": "12345", "Details": {"Title": "SQL Essentials", "Author": "John Doe"}},
+        {"id": "67890", "Details": {"Title": "Learning XML", "Author": "Jane Smith"}}
+    ]
+}'
+ 
+SELECT id, Title, Author
+FROM OPENJSON(@jsonData, '$.Books')
+WITH (
+    id NVARCHAR(5),
+    Title NVARCHAR(100) '$.Details.Title',
+    Author NVARCHAR(100) '$.Details.Author'
+)
+```
+
+
+- JSON VALUE -> for scalar values (int,string,...)
+- JSON QUERY -> fro non scalar values (array,object)
+
+```sql
+-- JSON_VALUE -- return scalar values
+DECLARE @jsonData NVARCHAR(MAX) = N'{"name": "John", "age": 30}'
+ 
+SELECT JSON_VALUE(@jsonData, '$.name') AS Name,
+    JSON_VALUE(@jsonData, '$.age') AS Age;
+ 
+  
+DECLARE @jsonData NVARCHAR(MAX) = N'{
+    "employee": {"name": "John", "skills": ["SQL", "C#", "Azure"]}
+}'
+SELECT JSON_QUERY(@jsonData, '$.employee.skills') AS Skills;
+```
+ 
+ 
